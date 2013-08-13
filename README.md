@@ -1,28 +1,29 @@
-ABOUT
+About
 =====
 
 This is a plugin that creates a new channel in Plex Media Server to view content from the website KissAnime.com. It is currently under development and as such, should be considered alpha software and potential unstable. If you try it and it works for you (or if it not!) please let me know. 
-Note: the author of this plugin has no affiliation with KissAnime.com or the owners of the content that it hosts.
+
+**Note:** the author of this plugin has no affiliation with KissAnime.com or the owners of the content that it hosts.
 
 
-SYSTEM REQUIREMENTS
+System Requirements
 ===================
 
-Plex Media Server Version 0.9.8.4 or newer:
+- **Plex Media Server Version 0.9.8.4 or newer:**
 	
-	Tested Working:
+	- Tested Working:
 		- Windows
 		
-	Not Tested:
+	- Not Tested:
 		- Mac OSX
 		- Linux & NAS
 
-Plex Clients:
+- **Plex Clients:**
 
-	Tested Working:
+	- Tested Working:
 		- Plex Media Centre / Home Theater for Windows
 		
-	Tested NOT Working:
+	- Tested NOT Working:
 		- Plex/Web
 		- Android
 		
@@ -35,7 +36,7 @@ Plex Clients:
 		- LG, Samsung Google Smart TV
 
 
-HOW TO INSTALL
+How To Install
 ==============
 
 - Download the latest version of the plugin.
@@ -43,14 +44,14 @@ HOW TO INSTALL
 - Unzip and rename folder to "KissAnime.bundle"
 
 - Copy KissAnime.bundle into the PMS plugins directory under your user account.
-	Windows 7, Vista, or Server 2008: C:\Users[Your Username]\AppData\Local\Plex Media Server\Plug-ins
-	Windows XP, Server 2003, or Home Server: C:\Documents and Settings[Your Username]\Local Settings\Application Data\Plex Media Server\Plug-ins
-	Mac/Linux: ~/Library/Application Support/Plex Media Server/Plug-ins
+	- Windows 7, Vista, or Server 2008: C:\Users[Your Username]\AppData\Local\Plex Media Server\Plug-ins
+	- Windows XP, Server 2003, or Home Server: C:\Documents and Settings[Your Username]\Local Settings\Application Data\Plex Media Server\Plug-ins
+	- Mac/Linux: ~/Library/Application Support/Plex Media Server/Plug-ins
 
 - Restart PMS
 
 
-KNOWN ISSUES
+Known Issues
 ============
 
 - Initial loading of show list can be slow.
@@ -59,7 +60,7 @@ KNOWN ISSUES
 - Currently limited to a max of 480p quality.
 
 
-ROADMAP
+Roadmap
 =======
 
 - Support for MP4 HD streams
@@ -69,8 +70,8 @@ ROADMAP
 - More complete meta-data (Cosmetic)
 
 
-CHANGELOG
+Changelog
 =========
 
-0.01 - 14/08/13
+**0.01** - 14/08/13
 Initial version

@@ -37,7 +37,7 @@ System Requirements
 How To Install
 ==============
 
-- Download the latest version of the plugin.
+- [Download](https://github.com/TehCrucible/KissAnime.bundle/archive/master.zip) the latest version of the plugin.
 
 - Unzip and rename folder to "KissAnime.bundle"
 

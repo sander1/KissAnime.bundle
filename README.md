@@ -11,28 +11,28 @@ System Requirements
 - **Plex Media Server Version 0.9.8.4 or newer:**
 	
 	- Tested Working:
-		Windows
+		- Windows
 		
 	- Not Tested:
-		Mac OSX
-		Linux & NAS
+		- Mac OSX
+		- Linux & NAS
 
 - **Plex Clients:**
 
 	- Tested Working:
-		Plex Media Centre / Home Theater for Windows
+		- Plex Media Centre / Home Theater for Windows
 		
 	- Tested NOT Working:
-		Plex/Web
-		Android
+		- Plex/Web
+		- Android
 		
 	- Not Tested:
-		Plex Media Centre / Home Theater for Mac OSX
-		Windows 8 app
-		Roku
-		iOS
-		Windows Phone
-		LG, Samsung Google Smart TV
+		- Plex Media Centre / Home Theater for Mac OSX
+		- Windows 8 app
+		- Roku
+		- iOS
+		- Windows Phone
+		- LG, Samsung Google Smart TV
 
 How To Install
 ==============

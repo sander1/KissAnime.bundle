@@ -7,9 +7,10 @@ BASE_URL = 'http://kissanime.com'
 
 def MetadataObjectForURL(url):
 	page_data = HTML.ElementFromURL(url)
-	meta_data = HTML.ElementFromURL(url.rsplit(["/"[1]])[0])
-	temp_title = url.rsplit(["?"[1]])[0]
-	show_title = str(meta_data.xpath("//div[@class='barContent']//a[@class='bigChar']/text()")[0]) + " " + str(temp_title.rsplit(["/"[1]])[1])
+	show_url = page_data.xpath("//div[@id='navsubbar']/p/a/@href")[0]
+	meta_data = HTML.ElementFromURL(show_url)
+	temp_title = url.rsplit("?")[0]
+	show_title = str(meta_data.xpath("//div[@class='barContent']//a[@class='bigChar']/text()")[0]) + " " + str(temp_title.rsplit("/", 1)[1])
 	show_thumb = meta_data.xpath("//div[@class='rightBox'][1]//div[@class='barContent']/div/img/@src")[0]
 	show_summary = '\r\n\r\n'.join(map(str, meta_data.xpath("//div[@id='leftside']//p[5]/text()")))
 	if len(show_summary) < 1:
@@ -22,7 +23,7 @@ def MetadataObjectForURL(url):
 		)
 
 ######################################################################################
-#Currently only .flv appears to be a shared container on all videos
+# All videos share same codec
 	
 def MediaObjectsForURL(url):
 
@@ -31,50 +32,17 @@ def MediaObjectsForURL(url):
 		MediaObject(
 			video_codec = VideoCodec.H264,
 			audio_codec = AudioCodec.AAC,
-			video_resolution = 480,
 			audio_channels = 2,
 			container = Container.MP4,
-			parts = [PartObject(key=Callback(PlayVideo, url = url, fmt = "480"))]
-			),
-
-		MediaObject(
-			video_codec = VideoCodec.H264,
-			audio_codec = AudioCodec.AAC,
-			video_resolution = 360,
-			audio_channels = 2,
-			container = Container.MP4,
-			parts = [PartObject(key=Callback(PlayVideo, url = url, fmt = "360"))]
-			),
-		
-		MediaObject(
-			video_codec = VideoCodec.H264,
-			audio_codec = AudioCodec.AAC,
-			video_resolution = 240,
-			audio_channels = 2,
-			container = Container.MP4,
-			parts = [PartObject(key=Callback(PlayVideo, url = url, fmt = "240"))]
-		)
+			parts = [PartObject(key=Callback(PlayVideo, url = url))]
+			)
 	]
 
 ######################################################################################
-# Creates a list of available videdo links in order of quality and returns the closest match
+# Creates a list of available videdo links and returns best quality (first)
 
-def PlayVideo(url, fmt):
+def PlayVideo(url):
 
 	page_data = HTML.ElementFromURL(url)
-	video = []
-
-	for each in page_data.xpath("//div[@class='barContent']/div/div/a"):
-		link = each.xpath("./@href")[0]
-		quality = each.xpath("./text()")[0]
-		if quality.find(".flv") > 0:
-			video.append(link)
-				
-	if fmt == "480":
-		return Redirect(video[0])
-		
-	if fmt == "360":
-		return Redirect(video[1])
-
-	if fmt == "240":
-		return Redirect(video[2])
+	video = page_data.xpath("//div[@class='barContent']/div/div/a/@href")[0]
+	return Redirect(video)

@@ -1,6 +1,6 @@
 ######################################################################################
 #
-#	KISS ANIME CHANNEL (BY TEHCRUCIBLE) - v0.02
+#	KISS ANIME CHANNEL (BY TEHCRUCIBLE) - v0.03
 #
 ######################################################################################
 
@@ -11,6 +11,7 @@ ICON = "icon-default.png"
 ICON_LIST = "icon-list.png"
 ICON_NEXT = "icon-next.png"
 ICON_COVER = "icon-cover.png"
+ICON_SEARCH = "icon-search.png"
 BASE_URL = "http://kissanime.com"
 
 ######################################################################################
@@ -31,6 +32,7 @@ def Start():
 	EpisodeObject.thumb = R(ICON_COVER)
 	EpisodeObject.art = R(ART)
 	HTTP.CacheTime = CACHE_1HOUR
+	HTTP.Headers['User-agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0'
 	
 ######################################################################################
 # Params page_count & offset are used for paginating results and should not be changed
@@ -41,6 +43,7 @@ def MainMenu():
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Most Popular", category = "/MostPopular/?page=", page_count = 1, offset = 0), title = "Most Popular", thumb = R(ICON_LIST)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Latest Updates", category = "/LatestUpdate/?page=", page_count = 1, offset = 0), title = "Latest Updates", thumb = R(ICON_LIST)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Newest Anime", category = "/Newest/?page=", page_count = 1, offset = 0), title = "Newest Anime", thumb = R(ICON_LIST)))
+	oc.add(InputDirectoryObject(key=Callback(Search), title = "Search", prompt = "What are you searching for?", thumb = R(ICON_SEARCH)))
 	return oc
 
 ######################################################################################
@@ -78,6 +81,34 @@ def ShowCategory(title, category, page_count, offset):
 	
 	return oc
 
+######################################################################################
+# Finds total number of pages from Anime List and searches each for query in show_title - 10 Maximum
+	
+def Search(query):
+	oc = ObjectContainer()
+	page_count = 1
+	show_count = 0
+	last_page = HTML.ElementFromURL("http://kissanime.com/AnimeList?page=" + str(page_count)).xpath("//ul[@class='pager']/li[5]/a/@href")[0]
+	total_pages = int(last_page.rsplit("=")[1])
+	
+	while page_count <= total_pages and show_count <= 10: 
+		for each in HTML.ElementFromURL("http://kissanime.com/AnimeList?page=" + str(page_count)).xpath("//table[@class='listing']//td//a"):
+			show_url = BASE_URL + each.xpath("./@href")[0]
+			show_title = each.xpath("./text()")[0].strip()
+			lower_title = show_title.lower()
+			
+			if lower_title.find(query.lower()) >= 0 and show_url.count("/") <= 4:
+				oc.add(GetShow(show_title, show_url))
+				show_count += 1
+		
+		page_count += 1
+	
+	if len(oc) < 1:
+		Log ("Search returned no results.")
+		return ObjectContainer(header="Search", message="Sorry, no results. Try being less specific.")  
+	
+	return oc
+	
 ######################################################################################
 # Collects metadata from show_url and returns TVShowObject	
 	

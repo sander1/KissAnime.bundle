@@ -1,7 +1,7 @@
 About
 =====
 
-This is a plugin that creates a new channel in Plex Media Server to view content from the website KissAnime.com. It is currently under development and as such, should be considered alpha software and potential unstable. If you try it and it works for you (or if it not!) please let me know. 
+This is a plugin that creates a new channel in Plex Media Server to view content from the website KissAnime.com. It is currently under development and as such, should be considered alpha software and potentially unstable. If you try it and it works for you (or if it not!) please let me know. 
 
 **Note:** the author of this plugin has no affiliation with KissAnime.com or the owners of the content that it hosts.
 
@@ -21,10 +21,10 @@ System Requirements
 
 	- Tested Working:
 		- Plex Media Centre / Home Theater for Windows
+		- Android
 		
 	- Tested NOT Working:
 		- Plex/Web
-		- Android
 		
 	- Not Tested:
 		- Plex Media Centre / Home Theater for Mac OSX
@@ -52,22 +52,21 @@ Known Issues
 ============
 
 - Initial loading of show list can be slow.
-- Currently limited ability to find a specific show.
 - Season/Episode numbers listed are not the actual Season/Episode division of the show. Refer to the title of the video for the actual episode number.
-- Currently limited to a max of 480p quality.
 - All shows have rating of 10. (Because all anime is awesome!)
+- Unwatched counts will be always unwatched.  Nothing I can do about this one, its a bug with the Plex framework.
 
 Roadmap
 =======
 
-- Support for MP4 HD streams
-- Search feature
 - Favourites list
 - Movies return MovieObject not TVShowObject (Cosmetic)
 - More complete meta-data (Cosmetic)
 
 Changelog
 =========
+
+**0.03** - 14/08/13 - Added search function. Confirmed Android support.
 
 **0.02** - 14/08/13 - Cleaned & commented code
 

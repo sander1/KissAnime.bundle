@@ -1,13 +1,20 @@
+######################################################################################
+#
+#	KISS ANIME CHANNEL (BY TEHCRUCIBLE) - v0.02
+#
+######################################################################################
+
 TITLE = "Kiss Anime"
 PREFIX = "/video/kissanime"
-
 ART = "art-default.jpg"
 ICON = "icon-default.png"
 ICON_LIST = "icon-list.png"
 ICON_NEXT = "icon-next.png"
 ICON_COVER = "icon-cover.png"
-
 BASE_URL = "http://kissanime.com"
+
+######################################################################################
+# Set global variables
 
 def Start():
 
@@ -24,16 +31,22 @@ def Start():
 	EpisodeObject.thumb = R(ICON_COVER)
 	EpisodeObject.art = R(ART)
 	HTTP.CacheTime = CACHE_1HOUR
+	
+######################################################################################
+# Params page_count & offset are used for paginating results and should not be changed
 
 @handler(PREFIX, TITLE, art=ART, thumb=ICON)
 def MainMenu():
 	oc = ObjectContainer()
-	oc.add(DirectoryObject(key = Callback(MostPopular, title="Most Popular", page_count = 1, offset = 0), title = "Most Popular", thumb = R(ICON_LIST)))
-	oc.add(DirectoryObject(key = Callback(LatestUpdate, title="Latest Updates", page_count = 1, offset = 0), title = "Latest Updates", thumb = R(ICON_LIST)))
-	oc.add(DirectoryObject(key = Callback(NewAnime, title="Newest Anime", page_count = 1, offset = 0), title = "Newest Anime", thumb = R(ICON_LIST)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Most Popular", category = "/MostPopular/?page=", page_count = 1, offset = 0), title = "Most Popular", thumb = R(ICON_LIST)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Latest Updates", category = "/LatestUpdate/?page=", page_count = 1, offset = 0), title = "Latest Updates", thumb = R(ICON_LIST)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Newest Anime", category = "/Newest/?page=", page_count = 1, offset = 0), title = "Newest Anime", thumb = R(ICON_LIST)))
 	return oc
 
-def MostPopular(title, page_count, offset):
+######################################################################################
+# Collects 50 results per page, paginates by groups of 10
+	
+def ShowCategory(title, category, page_count, offset):
 
 	count = 0
 	show_count = 0
@@ -43,7 +56,7 @@ def MostPopular(title, page_count, offset):
 		offset = 0
 
 	oc = ObjectContainer(title1 = title)
-	page_data = HTML.ElementFromURL("http://kissanime.com/AnimeList/MostPopular/?page="+str(page_count))
+	page_data = HTML.ElementFromURL("http://kissanime.com/AnimeList" + str(category) + str(page_count))
 	
 	for each in page_data.xpath("//table[@class='listing']//td//a"):
 		if show_count < 10:
@@ -54,42 +67,10 @@ def MostPopular(title, page_count, offset):
 				count += 1
 				if count > offset:
 					oc.add(GetShow(show_title, show_url))
-					show_count = show_count + 1		
+					show_count += 1		
 	
 	offset += 10
-	oc.add(NextPageObject(key = Callback(MostPopular, title="Most Popular", page_count = page_count, offset = offset), title = "More...", thumb = R(ICON_NEXT)))
-	
-	if len(oc) < 1:
-		Log ("page_data.xpath is empty")
-		return ObjectContainer(header="Error", message="Something has gone horribly wrong...")  
-	
-	return oc
-	
-def LatestUpdate(title, page_count, offset):
-
-	count = 0
-	show_count = 0
-
-	if offset >= 50:
-		page_count += 1
-		offset = 0
-
-	oc = ObjectContainer(title1 = title)
-	page_data = HTML.ElementFromURL("http://kissanime.com/AnimeList/LatestUpdate/?page="+str(page_count))
-	
-	for each in page_data.xpath("//table[@class='listing']//td//a"):
-		if show_count < 10:
-			show_url = BASE_URL + each.xpath("./@href")[0]
-			show_title = each.xpath("./text()")[0].strip()
-			
-			if show_url.count("/") <= 4:		
-				count += 1
-				if count > offset:
-					oc.add(GetShow(show_title, show_url))
-					show_count = show_count + 1		
-	
-	offset += 10
-	oc.add(NextPageObject(key = Callback(MostPopular, title="Latest Updates", page_count = page_count, offset = offset), title = "More...", thumb = R(ICON_NEXT)))
+	oc.add(NextPageObject(key = Callback(ShowCategory, title = title, category = category, page_count = page_count, offset = offset), title = "More...", thumb = R(ICON_NEXT)))
 	
 	if len(oc) < 1:
 		Log ("page_data.xpath is empty")
@@ -97,38 +78,9 @@ def LatestUpdate(title, page_count, offset):
 	
 	return oc
 
-def NewAnime(title, page_count, offset):
-
-	count = 0
-	show_count = 0
-
-	if offset >= 50:
-		page_count += 1
-		offset = 0
-
-	oc = ObjectContainer(title1 = title)
-	page_data = HTML.ElementFromURL("http://kissanime.com/AnimeList/Newest/?page="+str(page_count))
+######################################################################################
+# Collects metadata from show_url and returns TVShowObject	
 	
-	for each in page_data.xpath("//table[@class='listing']//td//a"):
-		if show_count < 10:
-			show_url = BASE_URL + each.xpath("./@href")[0]
-			show_title = each.xpath("./text()")[0].strip()
-			
-			if show_url.count("/") <= 4:		
-				count += 1
-				if count > offset:
-					oc.add(GetShow(show_title, show_url))
-					show_count = show_count + 1		
-	
-	offset += 10
-	oc.add(NextPageObject(key = Callback(MostPopular, title="Newest Anime", page_count = page_count, offset = offset), title = "More...", thumb = R(ICON_NEXT)))
-	
-	if len(oc) < 1:
-		Log ("page_data.xpath is empty")
-		return ObjectContainer(header="Error", message="Something has gone horribly wrong...")  
-	
-	return oc
-
 def GetShow(show_title, show_url):
 	page_data = HTML.ElementFromURL(show_url)
 	show_thumb = page_data.xpath("//div[@class='rightBox'][1]//div[@class='barContent']/div/img/@src")[0]
@@ -146,11 +98,15 @@ def GetShow(show_title, show_url):
 		summary = show_summary,
 		episode_count = show_ep_count,
 		viewed_episode_count = 0,
-		genres = show_genres
+		genres = show_genres,
+		rating = 10.0
 		)
 	
 	return show_object
-	
+
+######################################################################################
+# Loops over episode list in groups of 30, creating SeasonObjects with ListEpisodes()	
+
 def PageEpisodes(show_title, show_url):
 
 	page_data = HTML.ElementFromURL(show_url)
@@ -196,6 +152,9 @@ def PageEpisodes(show_title, show_url):
 	)
 	
 	return oc
+
+######################################################################################
+# Grabs metadata and returns EpisodeObject for episodes between start_ep and end_ep
 	
 def ListEpisodes(show_title, show_url, start_ep, end_ep):
 

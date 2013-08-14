@@ -55,6 +55,7 @@ Known Issues
 - Currently limited ability to find a specific show.
 - Season/Episode numbers listed are not the actual Season/Episode division of the show. Refer to the title of the video for the actual episode number.
 - Currently limited to a max of 480p quality.
+- All shows have rating of 10. (Because all anime is awesome!)
 
 Roadmap
 =======
@@ -68,5 +69,6 @@ Roadmap
 Changelog
 =========
 
-**0.01** - 14/08/13
-Initial version
+**0.02** - 14/08/13 - Cleaned & commented code
+
+**0.01** - 14/08/13 - Initial version

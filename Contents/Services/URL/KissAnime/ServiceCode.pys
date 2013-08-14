@@ -1,4 +1,9 @@
+######################################################################################
+
 BASE_URL = 'http://kissanime.com'
+
+######################################################################################
+# Pulls show name from show_url to add to show_title
 
 def MetadataObjectForURL(url):
 	page_data = HTML.ElementFromURL(url)
@@ -13,8 +18,11 @@ def MetadataObjectForURL(url):
 	return VideoClipObject(
 		title = show_title,
 		summary = show_summary,
-		thumb = show_thumb,
-	)
+		thumb = show_thumb
+		)
+
+######################################################################################
+#Currently only .flv appears to be a shared container on all videos
 	
 def MediaObjectsForURL(url):
 
@@ -47,7 +55,10 @@ def MediaObjectsForURL(url):
 			parts = [PartObject(key=Callback(PlayVideo, url = url, fmt = "240"))]
 		)
 	]
-	
+
+######################################################################################
+# Creates a list of available videdo links in order of quality and returns the closest match
+
 def PlayVideo(url, fmt):
 
 	page_data = HTML.ElementFromURL(url)

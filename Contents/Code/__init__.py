@@ -1,8 +1,11 @@
 ######################################################################################
 #
-#	KISS ANIME CHANNEL (BY TEHCRUCIBLE) - v0.03
+#	KISS ANIME CHANNEL (BY TEHCRUCIBLE) - v0.04
 #
 ######################################################################################
+
+import datetime
+from random import choice
 
 TITLE = "Kiss Anime"
 PREFIX = "/video/kissanime"
@@ -13,6 +16,7 @@ ICON_NEXT = "icon-next.png"
 ICON_COVER = "icon-cover.png"
 ICON_SEARCH = "icon-search.png"
 BASE_URL = "http://kissanime.com"
+STUDIO_LIST = ["TV Tokyo", "Fact", "Bandai Entertainment Inc.", "Bandai Visual Company", "toho", "Madman Entertainment", "cartoonnetwork"]
 
 ######################################################################################
 # Set global variables
@@ -91,7 +95,7 @@ def Search(query):
 	last_page = HTML.ElementFromURL("http://kissanime.com/AnimeList?page=" + str(page_count)).xpath("//ul[@class='pager']/li[5]/a/@href")[0]
 	total_pages = int(last_page.rsplit("=")[1])
 	
-	while page_count <= total_pages and show_count <= 10: 
+	while page_count <= total_pages and show_count < 10: 
 		for each in HTML.ElementFromURL("http://kissanime.com/AnimeList?page=" + str(page_count)).xpath("//table[@class='listing']//td//a"):
 			show_url = BASE_URL + each.xpath("./@href")[0]
 			show_title = each.xpath("./text()")[0].strip()
@@ -117,12 +121,15 @@ def GetShow(show_title, show_url):
 	show_thumb = page_data.xpath("//div[@class='rightBox'][1]//div[@class='barContent']/div/img/@src")[0]
 	show_ep_count = len(page_data.xpath("//table[@class='listing']//td/a"))
 	show_genres = page_data.xpath("//div[@id='leftside']//p[2]/a/text()")
+	show_date = page_data.xpath("//table[@class='listing']//td[2]/text()")[(show_ep_count - 1)]
+	date_format = "%m/%d/%Y"
 	show_summary = '\r\n\r\n'.join(map(str, page_data.xpath("//div[@id='leftside']//p[5]/text()")))
+	show_studio = choice(STUDIO_LIST)
 	if len(show_summary) < 1:
 		show_summary = '\r\n\r\n'.join(map(str, page_data.xpath("//div[@class='bigBarContainer'][1]//td/text()")))
-	
+
 	show_object = TVShowObject(
-		key = Callback(PageEpisodes, show_title = show_title, show_url = show_url),
+		key = Callback(PageEpisodes, show_title = show_title, show_url = show_url, show_studio = show_studio),
 		rating_key = show_title,
 		title = show_title,
 		thumb = Resource.ContentsOfURLWithFallback(url = show_thumb, fallback='icon-cover.png'),
@@ -130,23 +137,29 @@ def GetShow(show_title, show_url):
 		episode_count = show_ep_count,
 		viewed_episode_count = 0,
 		genres = show_genres,
-		rating = 10.0
+		rating = 10.0,
+		studio = show_studio,
+		originally_available_at = datetime.datetime.strptime(show_date.strip(), date_format)
 		)
 	
 	return show_object
 
 ######################################################################################
-# Loops over episode list in groups of 30, creating SeasonObjects with ListEpisodes()	
+# Loops over episode list in groups of 30, creating TVShowObjects with ListEpisodes()	
 
-def PageEpisodes(show_title, show_url):
+def PageEpisodes(show_title, show_url, show_studio):
 
 	page_data = HTML.ElementFromURL(show_url)
 	show_thumb = page_data.xpath("//div[@class='rightBox'][1]//div[@class='barContent']/div/img/@src")[0]
 	show_ep_count = len(page_data.xpath("//table[@class='listing']//td/a"))
 	show_genres = page_data.xpath("//div[@id='leftside']//p[2]/a/text()")
+	show_date = page_data.xpath("//table[@class='listing']//td[2]/text()")[(show_ep_count - 1)]
+	date_format = "%m/%d/%Y"
 	show_summary = '\r\n\r\n'.join(map(str, page_data.xpath("//div[@id='leftside']//p[5]/text()")))
 	if len(show_summary) < 1:
 		show_summary = '\r\n\r\n'.join(map(str, page_data.xpath("//div[@class='bigBarContainer'][1]//td/text()")))
+	eps_list = page_data.xpath("//table[@class='listing']//td/a/text()")
+	eps_list.reverse()
 	
 	offset = 0
 	rotation = (show_ep_count - (show_ep_count % 30)) / 30
@@ -158,31 +171,77 @@ def PageEpisodes(show_title, show_url):
 		start_ep  = offset
 		end_ep = offset + 30
 		
-		oc.add(SeasonObject(
+		start_ep_title = eps_list[(start_ep)].strip()
+		end_ep_title = eps_list[(end_ep - 1)].strip()
+		
+		if start_ep_title.find("Episode") > 0 and end_ep_title.find("Episode") > 0:
+			start_ep_title = "Episodes " + start_ep_title.split("Episode", 1)[1]
+			end_ep_title = end_ep_title.split("Episode", 1)[1]
+		elif start_ep_title.find("Episode") > 0 and end_ep_title.find("Episode") < 0:
+			start_ep_title = "Episodes " + start_ep_title.split("Episode", 1)[1]
+			end_ep_title = " " + str(end_ep)
+		elif start_ep_title.find("Episode") < 0 and end_ep_title.find("Episode") > 0:
+			start_ep_title = "Episodes " + str(start_ep + 1)		
+			end_ep_title = end_ep_title.split("Episode", 1)[1]
+		else:
+			start_ep_title = "Episodes " + str(start_ep + 1)
+			end_ep_title = " " + str(end_ep)
+		
+		oc.add(TVShowObject(
 			key = Callback(ListEpisodes, show_title = show_title, show_url = show_url, start_ep = start_ep, end_ep = end_ep),
 			rating_key = show_title,
-			title = "Episodes " + str(start_ep + 1) + " - " + str(end_ep),
+			title = str(start_ep_title) + " -" + str(end_ep_title),
 			thumb = Resource.ContentsOfURLWithFallback(url = show_thumb, fallback='icon-cover.png'),
 			summary = show_summary,
 			episode_count = 30,
-			show = show_title
+			viewed_episode_count = 0,
+			genres = show_genres,
+			rating = 10.0,
+			studio = show_studio,
+			originally_available_at = datetime.datetime.strptime(show_date.strip(), date_format)
 			)
 		)
 		offset += 30
 		rotation = rotation - 1
-	
-	oc.add(SeasonObject(
-		key = Callback(ListEpisodes, show_title = show_title, show_url = show_url, start_ep = offset, end_ep = offset + (show_ep_count % 30)),
-		rating_key = show_title,
-		title = "Episodes " + str(offset + 1) + " - " + str(offset + (show_ep_count % 30)),
-		thumb = Resource.ContentsOfURLWithFallback(url = show_thumb, fallback='icon-cover.png'),
-		summary = show_summary,
-		episode_count = show_ep_count % 30,
-		show = show_title
+
+	if (show_ep_count % 30) == 0:
+		return oc
+	else:
+
+		start_ep = offset
+		end_ep = (offset + (show_ep_count % 30))
+
+		start_ep_title = eps_list[(start_ep)].strip()
+		end_ep_title = eps_list[(end_ep - 1)].strip()
+		
+		if start_ep_title.find("Episode") > 0 and end_ep_title.find("Episode") > 0:
+			start_ep_title = "Episodes " + start_ep_title.split("Episode", 1)[1]
+			end_ep_title = end_ep_title.split("Episode", 1)[1]
+		elif start_ep_title.find("Episode") > 0 and end_ep_title.find("Episode") < 0:
+			start_ep_title = "Episodes " + start_ep_title.split("Episode", 1)[1]
+			end_ep_title = " " + str(end_ep)
+		elif start_ep_title.find("Episode") < 0 and end_ep_title.find("Episode") > 0:
+			start_ep_title = "Episodes " + str(start_ep + 1)		
+			end_ep_title = end_ep_title.split("Episode", 1)[1]
+		else:
+			start_ep_title = "Episodes " + str(start_ep + 1)
+			end_ep_title = " " + str(end_ep)
+		
+		oc.add(TVShowObject(
+			key = Callback(ListEpisodes, show_title = show_title, show_url = show_url, start_ep = offset, end_ep = offset + (show_ep_count % 30)),
+			rating_key = show_title,
+			title = str(start_ep_title) + " -" + str(end_ep_title),
+			thumb = Resource.ContentsOfURLWithFallback(url = show_thumb, fallback='icon-cover.png'),
+			summary = show_summary,
+			episode_count = show_ep_count % 30,
+			viewed_episode_count = 0,
+			genres = show_genres,
+			rating = 10.0,
+			studio = show_studio,
+			originally_available_at = datetime.datetime.strptime(show_date.strip(), date_format)
+			)
 		)
-	)
-	
-	return oc
+		return oc
 
 ######################################################################################
 # Grabs metadata and returns EpisodeObject for episodes between start_ep and end_ep
@@ -206,7 +265,6 @@ def ListEpisodes(show_title, show_url, start_ep, end_ep):
 		
 		oc.add(EpisodeObject(
 			url = ep_url,
-			rating_key = ep_title,
 			title = ep_title,
 			thumb = R(ICON_COVER),
 			summary = "Watch " + ep_title,

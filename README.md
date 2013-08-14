@@ -24,7 +24,7 @@ System Requirements
 		- Android
 		
 	- Tested NOT Working:
-		- Plex/Web
+		- Plex/Web (Limited Support)
 		
 	- Not Tested:
 		- Plex Media Centre / Home Theater for Mac OSX
@@ -52,19 +52,21 @@ Known Issues
 ============
 
 - Initial loading of show list can be slow.
-- Season/Episode numbers listed are not the actual Season/Episode division of the show. Refer to the title of the video for the actual episode number.
-- All shows have rating of 10. (Because all anime is awesome!)
+- All shows have rating of 10.(Because all anime is awesome!)
 - Unwatched counts will be always unwatched.  Nothing I can do about this one, its a bug with the Plex framework.
+- Studio logo is random. I just wanted something to fill the space.
+- First aired date is date uploaded to KissAnime.com.
 
 Roadmap
 =======
 
 - Favourites list
-- Movies return MovieObject not TVShowObject (Cosmetic)
-- More complete meta-data (Cosmetic)
+- Browse by genre
 
 Changelog
 =========
+
+**0.04** - 14/08/13 - Fixed episode pagination.  Additional metadata.
 
 **0.03** - 14/08/13 - Added search function. Confirmed Android support.
 
